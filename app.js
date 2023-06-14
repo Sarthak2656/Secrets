@@ -11,6 +11,8 @@ app.use(bodyParser.urlencoded({
 }));
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GitHubStrategy=require('passport-github2').Strategy;
+const TwitterStrategy=require('passport-twitter').Strategy;
 
 var session = require('express-session')
 var passport=require("passport");
@@ -33,6 +35,8 @@ const userSchema=new mongoose.Schema({
     email:String,
     password:String,
     googleId:String,
+    twitterId:String,
+    githubId:String,
     secret:String
 });
 
@@ -57,7 +61,7 @@ passport.serializeUser(function(user, cb) {
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/secrets"
+    callbackURL: "https://secret-lbxt.onrender.com/auth/google/secrets"
   },
   function(accessToken, refreshToken, profile, cb) {
     User.findOrCreate({ googleId: profile.id }, function (err, user) {
@@ -66,6 +70,29 @@ passport.use(new GoogleStrategy({
   }
 ));
 
+passport.use(new GitHubStrategy({
+  clientID: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackURL: "https://secret-lbxt.onrender.com/auth/github/secrets"
+},
+function(accessToken, refreshToken, profile, done) {
+  User.findOrCreate({ githubId: profile.id }, function (err, user) {
+    return done(err, user);
+  });
+}
+));
+
+passport.use(new TwitterStrategy({
+  consumerKey: process.env.TWITTER_CONSUMER_KEY,
+  consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+  callbackURL: "https://secret-lbxt.onrender.com/auth/twitter/secrets"
+},
+function(token, tokenSecret, profile, cb) {
+  User.findOrCreate({ twitterId: profile.id }, function (err, user) {
+    return cb(err, user);
+  });
+}
+));
 app.get("/",function(req,res)
 {
     res.render("home");
@@ -76,6 +103,26 @@ app.get('/auth/google',
 
   app.get('/auth/google/secrets', 
   passport.authenticate('google', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect secrets.
+    res.redirect('/secrets');
+  });
+
+  app.get('/auth/github',
+  passport.authenticate('github'));
+
+app.get('/auth/github/secrets', 
+  passport.authenticate('github', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect secrets.
+    res.redirect('/secrets');
+  });
+
+  app.get('/auth/twitter',
+  passport.authenticate('twitter'));
+
+app.get('/auth/twitter/secrets', 
+  passport.authenticate('twitter', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect secrets.
     res.redirect('/secrets');
