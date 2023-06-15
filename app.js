@@ -61,7 +61,7 @@ passport.serializeUser(function(user, cb) {
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "https://secret-lbxt.onrender.com/auth/google/secrets"
+    callbackURL: "https://secret-qxqn.onrender.com/auth/google/secrets"
   },
   function(accessToken, refreshToken, profile, cb) {
     User.findOrCreate({ googleId: profile.id }, function (err, user) {
@@ -73,7 +73,7 @@ passport.use(new GoogleStrategy({
 passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID,
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL: "https://secret-lbxt.onrender.com/auth/github/secrets"
+  callbackURL: "https://secret-qxqn.onrender.com/auth/github/secrets"
 },
 function(accessToken, refreshToken, profile, done) {
   User.findOrCreate({ githubId: profile.id }, function (err, user) {
@@ -85,7 +85,7 @@ function(accessToken, refreshToken, profile, done) {
 passport.use(new TwitterStrategy({
   consumerKey: process.env.TWITTER_CONSUMER_KEY,
   consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-  callbackURL: "https://secret-lbxt.onrender.com/auth/twitter/secrets"
+  callbackURL: "https://secret-qxqn.onrender.com/auth/twitter/secrets"
 },
 function(token, tokenSecret, profile, cb) {
   User.findOrCreate({ twitterId: profile.id }, function (err, user) {
@@ -109,7 +109,7 @@ app.get('/auth/google',
   });
 
   app.get('/auth/github',
-  passport.authenticate('github'));
+  passport.authenticate('github', { scope: [ 'user:email' ] }));
 
 app.get('/auth/github/secrets', 
   passport.authenticate('github', { failureRedirect: '/login' }),
